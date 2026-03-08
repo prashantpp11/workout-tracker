@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Workout Tracker">
+    <title>Workout Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #007AFF;
+            --primary-dark: #0051D5;
+            --secondary: #5856D6;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --warning: #FF9500;
+            --bg-primary: #000000;
+            --bg-secondary: #1C1C1E;
+            --bg-tertiary: #2C2C2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #98989D;
+            --border: #38383A;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding-bottom: 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 60px 20px 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(28, 28, 30, 0.95);
+        }
+
+        .header h1 {
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .workout-item {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .workout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .workout-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .workout-date {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .workout-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            width: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--bg-tertiary);
+            color: var(--primary);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            width: auto;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .exercise-stats {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .exercise-stat-card {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .exercise-stat-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .exercise-stat-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border: 1px solid var(--border);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 380px) {
+            .input-row-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💪 Workout Tracker</h1>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="totalWorkouts">0</div>
+                <div class="stat-label">Total Workouts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="thisWeek">0</div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalSets">0</div>
+                <div class="stat-label">Total Sets</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('log')">Log Workout</button>
+            <button class="tab" onclick="switchTab('history')">History</button>
+            <button class="tab" onclick="switchTab('stats')">Stats</button>
+        </div>
+
+        <!-- Log Workout Tab -->
+        <div id="logTab" class="tab-content">
+            <div class="card">
+                <div class="card-title">📝 New Workout</div>
+                <form id="workoutForm">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="workoutDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Exercise Name</label>
+                        <input type="text" id="exerciseName" placeholder="e.g., Bench Press" list="exerciseList" required>
+                        <datalist id="exerciseList"></datalist>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Sets, Reps & Weight</label>
+                        <div class="input-row-3">
+                            <div>
+                                <input type="number" id="sets" placeholder="Sets" min="1" required>
+                            </div>
+                            <div>
+                                <input type="number" id="reps" placeholder="Reps" min="1" required>
+                            </div>
+                            <div>
+                                <input type="number" id="weight" placeholder="lbs" min="0" step="0.5" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit">Add Workout</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="tab-content" style="display: none;">
+            <div class="filter-group" id="filterGroup"></div>
+            <div id="workoutHistory"></div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="statsTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-title">📊 Exercise Statistics</div>
+                <div class="exercise-stats" id="exerciseStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Data storage
+        let workouts = [];
+        let currentFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWorkouts();
+            setTodayDate();
+            updateStats();
+            renderHistory();
+            renderExerciseStats();
+            updateExerciseList();
+        });
+
+        // Set today's date as default
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('workoutDate').value = today;
+        }
+
+        // Load workouts from localStorage
+        function loadWorkouts() {
+            const stored = localStorage.getItem('workouts');
+            if (stored) {
+                workouts = JSON.parse(stored);
+            }
+        }
+
+        // Save workouts to localStorage
+        function saveWorkouts() {
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+        }
+
+        // Handle form submission
+        document.getElementById('workoutForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const workout = {
+                id: Date.now(),
+                date: document.getElementById('workoutDate').value,
+                exercise: document.getElementById('exerciseName').value.trim(),
+                sets: parseInt(document.getElementById('sets').value),
+                reps: parseInt(document.getElementById('reps').value),
+                weight: parseFloat(document.getElementById('weight').value)
+            };
+
+            workouts.unshift(workout);
+            saveWorkouts();
+            
+            // Reset form
+            document.getElementById('workoutForm').reset();
+            setTodayDate();
+            
+            // Update UI
+            updateStats();
+            renderHistory();
+            renderExerciseStats();
+            updateExerciseList();
+            
+            showToast('✅ Workout logged successfully!');
+        });
+
+        // Update statistics
+        function updateStats() {
+            const total = workouts.length;
+            const totalSetsCount = workouts.reduce((sum, w) => sum + w.sets, 0);
+            
+            // Calculate this week's workouts
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const thisWeekCount = workouts.filter(w => new Date(w.date) >= weekAgo).length;
+            
+            document.getElementById('totalWorkouts').textContent = total;
+            document.getElementById('thisWeek').textContent = thisWeekCount;
+            document.getElementById('totalSets').textContent = totalSetsCount;
+        }
+
+        // Render workout history
+        function renderHistory() {
+            const container = document.getElementById('workoutHistory');
+            
+            // Get unique exercises for filters
+            const exercises = [...new Set(workouts.map(w => w.exercise))];
+            const filterGroup = document.getElementById('filterGroup');
+            
+            filterGroup.innerHTML = `
+                <button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="filterWorkouts('all')">All</button>
+                ${exercises.map(ex => `
+                    <button class="filter-btn ${currentFilter === ex ? 'active' : ''}" onclick="filterWorkouts('${ex}')">${ex}</button>
+                `).join('')}
+            `;
+
+            // Filter workouts
+            const filtered = currentFilter === 'all' 
+                ? workouts 
+                : workouts.filter(w => w.exercise === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏋️</div>
+                        <div>No workouts logged yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(workout => `
+                <div class="workout-item">
+                    <div class="workout-header">
+                        <div>
+                            <div class="workout-name">${workout.exercise}</div>
+                            <div class="workout-date">${formatDate(workout.date)}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteWorkout(${workout.id})">×</button>
+                    </div>
+                    <div class="workout-details">
+                        <div class="detail-item">
+                            <div class="detail-value">${workout.sets}</div>
+                            <div class="detail-label">Sets</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">${workout.reps}</div>
+                            <div class="detail-label">Reps</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">${workout.weight}</div>
+                            <div class="detail-label">lbs</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render exercise statistics
+        function renderExerciseStats() {
+            const container = document.getElementById('exerciseStats');
+            
+            // Group by exercise
+            const exerciseGroups = {};
+            workouts.forEach(w => {
+                if (!exerciseGroups[w.exercise]) {
+                    exerciseGroups[w.exercise] = [];
+                }
+                exerciseGroups[w.exercise].push(w);
+            });
+
+            if (Object.keys(exerciseGroups).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div>No statistics available yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = Object.entries(exerciseGroups).map(([exercise, logs]) => {
+                const maxWeight = Math.max(...logs.map(l => l.weight));
+                const totalSets = logs.reduce((sum, l) => sum + l.sets, 0);
+                const totalReps = logs.reduce((sum, l) => sum + (l.sets * l.reps), 0);
+                const sessions = logs.length;
+
+                return `
+                    <div class="exercise-stat-card">
+                        <div class="exercise-stat-name">${exercise}</div>
+                        <div class="exercise-stat-info">
+                            <div>
+                                <div style="color: var(--success); font-weight: 600;">${maxWeight} lbs</div>
+                                <div style="color: var(--text-secondary); font-size: 11px;">Max Weight</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--primary); font-weight: 600;">${totalSets}</div>
+                                <div style="color: var(--text-secondary); font-size: 11px;">Total Sets</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--warning); font-weight: 600;">${sessions}</div>
+                                <div style="color: var(--text-secondary); font-size: 11px;">Sessions</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update exercise datalist
+        function updateExerciseList() {
+            const exercises = [...new Set(workouts.map(w => w.exercise))];
+            const datalist = document.getElementById('exerciseList');
+            datalist.innerHTML = exercises.map(ex => `<option value="${ex}">`).join('');
+        }
+
+        // Delete workout
+        function deleteWorkout(id) {
+            if (confirm('Delete this workout?')) {
+                workouts = workouts.filter(w => w.id !== id);
+                saveWorkouts();
+                updateStats();
+                renderHistory();
+                renderExerciseStats();
+                showToast('🗑️ Workout deleted');
+            }
+        }
+
+        // Filter workouts
+        function filterWorkouts(filter) {
+            currentFilter = filter;
+            renderHistory();
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide content
+            document.getElementById('logTab').style.display = tab === 'log' ? 'block' : 'none';
+            document.getElementById('historyTab').style.display = tab === 'history' ? 'block' : 'none';
+            document.getElementById('statsTab').style.display = tab === 'stats' ? 'block' : 'none';
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
